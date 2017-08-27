@@ -13,3 +13,5 @@
     (persistent! (assoc! entity :components (persistent! components))))
   )
 
+(defn new_component
+  [entity component])

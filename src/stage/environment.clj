@@ -1,5 +1,4 @@
 (ns stage.environment
-  (use [actors.agent :as entity])
   (:gen-class))
 
 
@@ -14,12 +13,10 @@
     )
 
   )
-(defn stage
-  "A data structure to hold all of the entities." [label]
-  {:stageID "some UUID" :entities {:id "some UUID" :components "some properties"}})
+
 
 (def agent_pool                                             ;; stage container for  agents
-  (fn produce_agents [stage] #{})
+  (fn produce_agents [stage] )
   ;; poll a database of agents, return a map by identity of all available agents on a stage
   )
 
