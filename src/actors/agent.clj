@@ -30,8 +30,6 @@
           [(vectity (name_entity))]))
 
 
-(def worldmap (atom #{}))
 
-(defn build_tree "A place where evrything lives." [entity]
-  (swap! worldmap conj  entity)
-  )
+(defn build_tree "A place where evrything lives." [worldmap entity]
+  (swap! worldmap conj  entity))
