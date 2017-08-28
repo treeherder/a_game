@@ -6,8 +6,8 @@
 
 (defn _agent
   "A more effective, no-longer alternate case where everthing is a set"
-  [entity]
-  [entity #{}]
+  []
+  [(name_entity) #{}]
   )
 
 (defn build_tree "A place where everything lives." [worldmap entity]
@@ -22,4 +22,4 @@
 
   (reduce (fn [comps [e c]]
             (into comps {e c})) components
-          [(_agent (name_entity))]))
+          [(_agent)]))
