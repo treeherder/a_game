@@ -1,4 +1,4 @@
-(defproject a_game "0.1.0-SNAPSHOT"
+(defproject a_game "0.0.1-SNAPSHOT"
   :description "A sweet hack and slash roguelike."
   :url "http://packetfire.org"
   :license {:name "Eclipse Public License"
