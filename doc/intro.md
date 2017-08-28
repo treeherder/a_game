@@ -4,7 +4,7 @@ A system for gamebuilding that holistically encompasses everything from the nitt
 building, to providing a platform for storytelling, and networking: as demonstrated by a game we will build,
 together.
 
-#####Really, it's a pipedream.
+##### Really, it's a pipedream.
 
 This might be a clever pun*, but it's also a sad reality of interest-driven projects.
 
@@ -18,7 +18,7 @@ and actually be fun**.
  *More on this later.
  **Lies
 
-#####A game can be more than the sum of its rules.
+##### A game can be more than the sum of its rules.
 Storytelling is central to game creation,
 
 Aside from the story, and the rules, a_game is a platform that exposes item creation
