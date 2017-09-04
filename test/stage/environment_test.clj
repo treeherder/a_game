@@ -2,16 +2,16 @@
   (:require [clojure.test :refer :all]
             [stage.environment :refer :all]))
 
-
-(deftest test_update
- (testing "Updates the test server db.  inputs a list of agents, outputs a sequence of actions"
-   (is (true? false))) )
-
-(deftest test_query_worldstate
-  (testing "Accepts a zone/instance ID and retrieves information about the stage."
-    (is (true? false))))
-
+(deftest stage
+  (testing "Is a datastructure that represents the map, the agents,
+   and the non-agents entities.
+   {:mapfile somefile :agent_pool {some set of agents} :item_pool {same deal} :stage_id id}" )
+  (is (true? false )))
 
 (deftest stage_map
-  (testing "Accepts a [gridmap] and a list of entities and plots them" )
+  (testing "Accepts a [stage] and a parses the lists of entities and
+   plots them on the map to be rendered:
+   [[12 23 45] {some entity} ]" )
   (is (true? false )))
+;; right now, this doesn't make a lot of sense outside of being a test function?
+

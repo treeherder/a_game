@@ -14,13 +14,10 @@
     )
   )
 
+(defn build_tree "An ambiguous place where everything lives." [worldmap entity]
+  (swap! worldmap conj  entity))
+;; Not sure how to do this without atoms, but this makes enough sense for now.
 
-(def agent_pool                                             ;; stage container for  agents
-  (fn produce_agents [stage]
-    (
-      ()
-      ;;do something to poll the worldmap datastructure and return all of the entities in it
 
-      ))
-  ;; poll a database of agents, return a map by identity of all available agents on a stage
-  )
+
+

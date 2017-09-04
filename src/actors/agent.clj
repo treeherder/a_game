@@ -1,25 +1,18 @@
 (ns actors.agent
-  (:gen-class)
-  )
+  (:gen-class))
 
+;; an entity is little more than its name:
 (defn name_entity "Creates an entity ID." [] (str (java.util.UUID/randomUUID)))
 
-(defn _agent
-  "A more effective, no-longer alternate case where everthing is a set"
-  []
-  [(name_entity) #{}]
+;; What meaning it has aside from its name is entirely determined by its components
+(defn _entity
+  "A more effective, no-longer alternate case where everthing is a set, or a vector in a set."
+  [] [(name_entity) #{}])
+
+(defn agent_pool
+  "The part of the stage object that holds all of the actors."
+  [stage]                                            ;; stage container for  agents
+  (let [stage (stage :agent_pool)]
+    ())
+  ;; poll a database of agents, return a map by identity of all available agents on a stage
   )
-
-(defn build_tree "A place where everything lives." [worldmap entity]
-  (swap! worldmap conj  entity))
-;;not sure how to do this without atoms
-
-
-
-
-(defn gen_som
-  "generate some entities" [components]
-
-  (reduce (fn [comps [e c]]
-            (into comps {e c})) components
-          [(_agent)]))
