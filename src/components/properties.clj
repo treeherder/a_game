@@ -13,3 +13,9 @@
     (persistent! (assoc! entity :components (persistent! components))))
   )
 
+
+
+(defn set_component_configuration
+  "Configure an entity's components according to component change parameters"
+  [entity component_changes]
+  )
