@@ -18,6 +18,16 @@ Roll up a character, join a party, and fight for glory!
 There are many options.
 
 ## Examples
+In order to create an entity:
+  ```a-game.core=> (def foo (actors.agent/_entity))
+     #'a-game.core/foo
+     a-game.core=> foo
+     ["a91cd14b-a686-48eb-945f-7d2f8b4aef85" #{}]
+     a-game.core=> (def a_po #{foo, bar})
+     #'a-game.core/a_po
+     a-game.core=> a_po
+     #{["a91cd14b-a686-48eb-945f-7d2f8b4aef85" #{}] ["6852888c-7c28-471c-b1ea-537502106aa7" #{}]}
+```
 
 ...
 
