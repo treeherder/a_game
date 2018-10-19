@@ -7,7 +7,8 @@
 ;; What meaning it has aside from its name is entirely determined by its components
 (defn _entity
   "A more effective, no-longer alternate case where everthing is a set, or a vector in a set."
-  [] [(name_entity) #{}])
+  []
+  {(name_entity) :components })
 
 (defn agent_pool
   "The part of the stage object that holds all of the actors."
