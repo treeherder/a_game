@@ -1,6 +1,7 @@
 (ns stage.environment_test
   (:require [clojure.test :refer :all]
-            [stage.environment :refer :all]))
+            [stage.environment :refer :all]
+	    [actors.agent :refer :all]))
 
 (deftest stage
   (testing "Is a datastructure that represents the map, the agents,
@@ -31,5 +32,11 @@
 	:components {:hp 1, :hardness 5, :used_for ["handle", "kindling"] :inflamable true}))
 
 
-(defn knife "A simple test object." [handle blade] 
+(defn knife
+  "This object is made at least partially of low-quality wood. It is potentially flammable and has a sharp blade."
+  [handle blade]
+  (components.properties/create_entity
+	:entity (actors.agent/_entity)
+	:components {handle, blade}
+	:reducible "to-components"  ))
 
