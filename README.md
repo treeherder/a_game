@@ -15,7 +15,7 @@ Roll up a character, join a party, and fight for glory!
 
 ## Options
 
-There are many options.
+There are not  many options.
 
 ## Examples
 In order to create an entity:
