@@ -32,7 +32,7 @@ In order to create an entity:
 ...
 
 ### Bugs
-
+- it doesn't work.
 ...
 
 ## License
