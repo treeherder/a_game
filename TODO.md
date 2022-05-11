@@ -10,7 +10,7 @@
   4. ????
   5. Profit. 
 
-
+- consider doing this with types?
 
 
 ##### Code:
