@@ -7,6 +7,47 @@ Key concepts
 - `entity`: lightweight map with `:id` and `:components`.
 - `components`: small maps describing properties (HP, hardness, etc.).
 
+## Map Generation
+
+The project includes procedural labyrinth generation for creating large, explorable dungeons:
+
+```bash
+# Generate a 100x100 labyrinth for testing
+lein run -m a-game.mapgen resources/maps/sample_maze.txt 100 100
+
+# Generate a large 2000x2000 labyrinth (recommended for gameplay)
+lein run -m a-game.mapgen resources/maps/large_labyrinth.txt 2000 2000
+
+# Generate a custom-sized labyrinth
+lein run -m a-game.mapgen <output-file> <width> <height> [cell-size]
+```
+
+Generated labyrinths feature:
+- **Grid-cell subdivision**: Map divided into cells (default 20x20) with rooms placed in ~50% of cells
+- **Random room sizes**: Small, medium, and large rooms with random dimensions and positions within cells
+- **Minimum spanning tree connections**: All rooms connected via direct L-shaped corridors
+- **Extensive maze network**: Recursive backtracking algorithm carves complex maze passages throughout empty space
+- **Full connectivity**: Every room and corridor is guaranteed reachable from every other location
+- **Border exits**: 1-3 random exits placed on map edges
+- **High traversable area**: ~50-60% walkable space with many branching paths and dead ends for exploration
+- ASCII format: `#` for walls, ` ` (space) for walkable floor/corridors
+
+**Important:** View generated map files with a **monospace font** (e.g., Courier, Consolas, Monaco) 
+to ensure all tiles display with equal width and height dimensions.
+
+### Generation Algorithm
+
+The labyrinth generator uses a sophisticated multi-phase approach:
+
+1. **Cell Subdivision**: Map divided into grid cells (configurable size, default 20x20)
+2. **Room Placement**: Approximately 50% of cells receive randomly-sized rooms (30-90% of cell size)
+3. **Room Connection**: Minimum spanning tree algorithm connects all rooms with L-shaped corridors
+4. **Maze Carving**: Recursive backtracking carves extensive maze passages in remaining space
+5. **Connectivity Guarantee**: Maze carving starts from existing corridors, ensuring full connectivity
+6. **Border Exits**: 1-3 random exits added to map edges
+
+Example: A 100x100 map generates ~5,800 walkable tiles with 12 rooms and complex maze passages in ~480ms.
+
 Primary API (in `src/stage/environment.clj`)
 - `create_stage(label, agent_pool, item_pool, mapfile, coordgrids, rules)` → returns an atom containing the stage map
 - `add-entity(world-atom, entity)` → adds entity into `:entities`
