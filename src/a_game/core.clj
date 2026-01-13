@@ -10,7 +10,8 @@
   "A data structure to hold all of the entities."
   ;;{:stageID "some UUID" :entities {:id "some UUID" :components "some properties"}}
   [map_entity new_entity]
-  (build_tree map_entity  new_entity))
+  (stage/add-entity map_entity new_entity)
+  (stage/snapshot map_entity))
 
 (defn _stagemap
   "A coordinate plane that is initalized by max (x,y,z) objects can occupy more than one space?
@@ -18,6 +19,10 @@
   indiidual rooms must somehow reconcile between having Z space that is their own vs shared."
   [mapfile]
   ;; this function needs to take the mapfile and read it into a map structure
-  
-  )
+  (if (and mapfile (not (empty? (str mapfile))))
+    (try
+      {:mapfile mapfile :raw (slurp mapfile)}
+      (catch Exception _
+        {:mapfile mapfile :raw nil}))
+    {}))
 

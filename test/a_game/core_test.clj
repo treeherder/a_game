@@ -8,7 +8,8 @@
 (deftest create_entity_list
   (testing "Create an entity and associate the ID with the list of components.
     Should belong to the stage data structure"
-    (is (= true (set?
-                   (a-game.core/contribute_entity_to_map womap (actors.agent/_entity))))
-        )))
+    (let [before-count (count @womap)
+          result (a-game.core/contribute_entity_to_map womap (actors.agent/_entity))]
+      (is (set? result))
+      (is (> (count result) before-count)))))
 

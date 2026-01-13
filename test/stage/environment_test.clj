@@ -1,21 +1,32 @@
-(ns stage.environment_test
-  (:require [clojure.test :refer :all]
-            [stage.environment :refer :all]
-	    [actors.agent :refer :all]))
+ (ns stage.environment_test
+   (:require [clojure.test :refer :all]
+             [stage.environment :refer :all]
+     [actors.agent :refer :all]
+     [components.properties :as props]))
 
 (deftest stage
-  (testing "Is a datastructure that represents the map, the agents,
-   and the non-agents entities.
-   {:mapfile somefile :agent_pool {some set of agents} :item_pool {same deal} :stage_id id}" )
-  (is (true? false )))
+  (testing "create_stage returns an atom containing expected keys"
+    (let [st (create_stage "test-stage" #{} #{} nil nil nil)]
+      (is (instance? clojure.lang.IAtom st))
+      (let [wm @st]
+        (is (= "test-stage" (:label wm)))
+        (is (map? wm))
+        (is (contains? wm :agent_pool))
+        (is (contains? wm :entities))
+        (is (string? (:stage_id wm)))))))
 
 (deftest stage_map
-  (testing "Accepts a [stage] and a parses the lists of entities and
-   plots them on the map to be rendered:
-   [[12 23 45] {some entity} ]" )
-
-  (is (true? false )))
+  (testing "Adding entities and agents updates the stage appropriately"
+    (let [st (create_stage "m" #{} #{} nil nil nil)
+          e (actors.agent/_entity)
+          a (actors.agent/_entity)]
+      (add-entity st e)
+      (add-agent st a)
+      (let [wm @st]
+        (is (= e (get-in wm [:entities (:id e)])))
+        (is (contains? (:agent_pool wm) a))))))
 ;; right now, this doesn't make a lot of sense outside of being a test function?
+
 
 (defn test_blade
   "This object is made of mostly low-quality metal, and sharpened into a thin blade."

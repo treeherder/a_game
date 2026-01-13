@@ -1,4 +1,5 @@
 (ns actors.agent
+  (:require [stage.environment :as stage])
   (:gen-class))
 
 ;; an entity is little more than its name:
@@ -12,7 +13,7 @@
 
 (defn agent_pool
   "The part of the stage object that holds all of the actors."
-  [stage]                                            ;; stage container for  agents
-  (let [stage (stage :agent_pool)]
-    ()))
+  [stage]
+  ;; Prefer using stage/get-agents which accepts both atoms and plain maps.
+  (stage/get-agents stage))
   ;; poll a database of agents, return a map by identity of all available agents on a stage

@@ -1,12 +1,16 @@
-(ns actors.agent
-  (:require [clojure.test :refer :all]))
+```clojure
+(ns actors.agent-test
+  (:require [clojure.test :refer :all]
+            [actors.agent :as a]
+            [stage.environment :as env]))
 
+(deftest agent-pool-returns-seq
+  (let [st (env/create_stage "s" #{} #{} nil nil nil)
+        ag (a/_entity)]
+    (env/add-agent st ag)
+    (is (seq? (a/agent_pool st)))))
 
-(deftest agent_pool
-  (testing "Accepts a [stage] and returns a list? of acting agents (players and NPCS)" )
-  (is (seq?
-        (actors.agent/agent_pool "some stage")
-        )))
+```
 
 ;; any entity with pysicality should have options for a BODY keymap
 ;; many objects and agents will have bodies that are represented similarly to stages
