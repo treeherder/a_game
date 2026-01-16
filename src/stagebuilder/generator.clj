@@ -3,7 +3,7 @@
    
    Generated maps use monospace-compatible ASCII characters:
    - '#' for walls
-   - ' ' (space) for walkable floor/corridor tiles
+   - '.' (period) for walkable floor/corridor tiles
    
    Algorithm:
    1. Subdivide map into grid of cells
@@ -151,6 +151,129 @@
               new-remaining (remove (fn [coord] (contains? carved-coords coord)) remaining-starts)]
           (recur new-remaining (concat all-paths paths)))))))
 
+;;; ============================================================
+;;; Dead End Generation - Creates winding, deceptive corridors
+;;; ============================================================
+
+(defn get-carve-neighbors
+  "Get valid adjacent positions for dead-end carving (2 cells away, odd coords)."
+  [x y width height rooms existing-paths]
+  (let [directions [[-2 0] [2 0] [0 -2] [0 2]]]
+    (->> directions
+         (map (fn [[dx dy]]
+                (let [nx (+ x dx)
+                      ny (+ y dy)
+                      mid-x (+ x (quot dx 2))
+                      mid-y (+ y (quot dy 2))]
+                  (when (and (carvable? nx ny width height rooms)
+                             (not (contains? existing-paths [nx ny]))
+                             (not (contains? existing-paths [mid-x mid-y])))
+                    {:dir [dx dy] :pos [nx ny] :mid [mid-x mid-y]}))))
+         (filter some?))))
+
+(defn carve-winding-dead-end
+  "Carve a single winding dead-end branch from a starting point.
+   Uses curve-bias to create organic, winding paths that deceive the player."
+  [start-x start-y width height rooms existing-paths target-length]
+  (loop [x start-x
+         y start-y
+         carved #{[start-x start-y]}
+         last-dir nil
+         steps 0
+         ;; Curve bias: tendency to curve left, right, or go straight
+         curve-bias (rand-nth [:left :right :straight :straight])]
+    (if (>= steps target-length)
+      carved
+      (let [all-paths (into existing-paths carved)
+            neighbors (get-carve-neighbors x y width height rooms all-paths)]
+        (if (empty? neighbors)
+          carved  ;; Natural dead end
+          (let [;; Choose direction based on curve bias and last direction
+                chosen (if (and last-dir (> (clojure.core/count neighbors) 1))
+                         (let [[ldx ldy] last-dir
+                               ;; Classify neighbors relative to last direction
+                               same (filter #(= (:dir %) last-dir) neighbors)
+                               perp (filter #(let [[dx dy] (:dir %)]
+                                               (or (and (zero? ldx) (zero? dy))
+                                                   (and (zero? ldy) (zero? dx))))
+                                            neighbors)]
+                           (case curve-bias
+                             :straight (or (first same) (rand-nth neighbors))
+                             :left (or (first perp) (first same) (rand-nth neighbors))
+                             :right (or (last perp) (first same) (rand-nth neighbors))
+                             (rand-nth neighbors)))
+                         (rand-nth neighbors))
+                {:keys [dir pos mid]} chosen
+                [nx ny] pos
+                [mx my] mid
+                ;; Occasionally change curve bias for natural winding
+                new-bias (if (< (rand) 0.2)
+                           (rand-nth [:left :right :straight :straight])
+                           curve-bias)]
+            (recur nx ny
+                   (conj carved pos mid)
+                   dir
+                   (inc steps)
+                   new-bias)))))))
+
+(defn find-branch-points
+  "Find good attachment points for dead ends on existing corridors.
+   Returns points that have 1-2 adjacent corridor neighbors."
+  [corridors width height rooms]
+  (let [corridor-set (set corridors)]
+    (->> corridors
+         (filter (fn [[x y]]
+                   (let [adj-count (->> [[(dec x) y] [(inc x) y] [x (dec y)] [x (inc y)]]
+                                        (filter #(contains? corridor-set %))
+                                        clojure.core/count)]
+                     (and (<= 1 adj-count 2)
+                          (carvable? x y width height rooms)))))
+         shuffle)))
+
+(defn generate-dead-ends
+  "Generate multiple winding dead-end branches off existing corridors."
+  [width height rooms existing-corridors num-dead-ends]
+  (let [branch-points (find-branch-points existing-corridors width height rooms)]
+    (loop [points (take (* 3 num-dead-ends) branch-points)  ;; Try extra points
+           all-carved #{}
+           created 0]
+      (if (or (empty? points) (>= created num-dead-ends))
+        all-carved
+        (let [[px py] (first points)
+              ;; Variable length: some short (3-6), some long (10-20)
+              target-len (if (< (rand) 0.3)
+                           (+ 10 (rand-int 12))   ;; Long winding dead end
+                           (+ 3 (rand-int 5)))    ;; Short dead end
+              branch (carve-winding-dead-end px py width height rooms
+                                              (into existing-corridors all-carved)
+                                              target-len)
+              branch-size (clojure.core/count branch)]
+          (if (> branch-size 2)  ;; Only count substantial branches
+            (recur (rest points) (into all-carved branch) (inc created))
+            (recur (rest points) all-carved created)))))))
+
+(defn add-secondary-branches
+  "Add smaller dead-end branches off primary dead ends for extra deception."
+  [width height rooms base-corridors primary-dead-ends]
+  (let [combined (into base-corridors primary-dead-ends)
+        branch-points (find-branch-points primary-dead-ends width height rooms)
+        num-secondary (max 1 (quot (clojure.core/count primary-dead-ends) 20))]
+    (loop [points (take (* 2 num-secondary) branch-points)
+           all-carved #{}
+           created 0]
+      (if (or (empty? points) (>= created num-secondary))
+        all-carved
+        (let [[px py] (first points)
+              target-len (+ 2 (rand-int 4))  ;; Short secondary branches
+              branch (carve-winding-dead-end px py width height rooms
+                                              (into combined all-carved)
+                                              target-len)]
+          (recur (rest points)
+                 (into all-carved branch)
+                 (inc created)))))))
+
+;;; ============================================================
+
 (defn get-room-connections
   "Get direct L-shaped corridor connecting two room centers."
   [room1 room2]
@@ -212,7 +335,8 @@
             chosen-borders)))
 
 (defn generate-labyrinth
-  "Generate an ASCII labyrinth using grid-cell approach with rooms and connecting corridors."
+  "Generate an ASCII labyrinth using grid-cell approach with rooms and connecting corridors.
+   Includes winding dead-ends that create deceptive paths to confuse players."
   ([width height] (generate-labyrinth width height 20))
   ([width height cell-size]
    (let [;; Subdivide into cells and place rooms
@@ -222,8 +346,21 @@
          room-corridors (connect-all-rooms rooms)
          ;; Carve extensive maze in empty space (starting from room corridors)
          maze-paths (carve-maze-in-empty-space width height rooms room-corridors)
+         ;; Combine base corridors
+         base-corridors (into room-corridors maze-paths)
+         
+         ;; Generate winding dead ends (about 15% of corridor count, min 5)
+         num-dead-ends (max 5 (quot (clojure.core/count maze-paths) 7))
+         primary-dead-ends (generate-dead-ends width height rooms base-corridors num-dead-ends)
+         
+         ;; Add secondary branches off dead ends for extra deception
+         secondary-dead-ends (add-secondary-branches width height rooms 
+                                                      base-corridors primary-dead-ends)
+         
          ;; Combine all corridor types
-         corridors (into room-corridors maze-paths)
+         corridors (-> base-corridors
+                       (into primary-dead-ends)
+                       (into secondary-dead-ends))
          ;; Add border exits
          exits (add-border-exits width height rooms corridors)
          ;; Combine all walkable areas
@@ -257,12 +394,12 @@
         corridors (or (:corridors labyrinth) #{})]
     (cond
       ;; Check if in a corridor
-      (contains? corridors [x y]) \space
+      (contains? corridors [x y]) \.
       ;; Check if inside a room (floor or wall)
       (some #(point-in-room? x y %) rooms)
       (if (some #(point-on-room-wall? x y %) rooms)
         \#  ;; Wall
-        \space) ;; Floor
+        \.) ;; Floor
       ;; Otherwise corridor/wall
       :else \#)))
 
@@ -284,7 +421,7 @@
    Output format: Plain ASCII text, one character per tile.
    View with a monospace font for correct tile alignment.
    - '#' = wall
-   - ' ' = floor/corridor (walkable space)"
+   - '.' = floor/corridor (walkable space)"
   [labyrinth filename]
   (spit filename (render-labyrinth labyrinth)))
 

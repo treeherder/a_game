@@ -23,9 +23,10 @@
   (get (:tiles grid) [x y] \space))
 
 (defn find-walkable-tiles
-  "Find all walkable (non-wall) tiles in the grid."
+  "Find all walkable (non-wall) tiles in the grid.
+   Supports both '.' and space as walkable characters."
   [grid]
-  (vec (filter (fn [[coord char]] (= char \space)) (:tiles grid))))
+  (vec (filter (fn [[coord char]] (or (= char \.) (= char \space))) (:tiles grid))))
 
 (defn find-walls
   "Find all wall tiles in the grid."
