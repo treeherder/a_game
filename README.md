@@ -112,12 +112,57 @@ Apply an event (pure) and commit it to the atom:
 (env/commit-event st event)
 ```
 
-Testing
+## Testing
 
 Run the test suite with Leiningen:
 
 ```bash
+# Run all tests
 lein test
+
+# Run specific test namespace
+lein test actors.agent-collision-test
+lein test components.collision-test
+
+# Run a single test
+lein test :only actors.agent-collision-test/composite-body-collision-bounds
+```
+
+### Test Coverage
+
+The project has comprehensive test coverage across all major systems:
+
+- **Collision System** (18 tests, 51 assertions): Tests collision as the universal basis for physical entities, including composite bodies, movement, and stage integration
+- **Map Generation** (10+ tests): Validates procedural labyrinth generation, connectivity, room detection, and file I/O
+- **Game Clock** (19 tests): Tests tick system, event scheduling, pause/resume, and cooldowns
+- **Stage/World** (8+ tests): Tests entity management, agent pools, and event processing
+- **Components** (14+ tests): Tests property system and collision components
+
+**See [wiki/Testing.md](wiki/Testing.md) for complete testing documentation**, including:
+- Detailed test descriptions and rationale
+- Test writing best practices
+- Examples and patterns
+- Debugging guide
+
+### Quick Test Examples
+
+```clojure
+;; Run in REPL to experiment with tested functionality
+(require '[actors.agent :as a])
+(require '[components.collision :as collision])
+
+;; Create an entity with collision (physical body)
+(def player (-> (a/_entity)
+                (collision/add-collision
+                 (collision/create-collision {:x 10 :y 20 :solid true}))))
+
+;; Check collision properties
+(collision/has-collision? player)  ;; => true
+(collision/get-bounds player)      ;; => {:x 10 :y 20 :width 1 :height 1}
+(collision/solid? player)          ;; => true
+
+;; Move the entity
+(def moved-player (collision/set-position player 15 25))
 ```
 
 Notes
