@@ -20,7 +20,7 @@
 (defn get-tile
   "Get the tile character at a specific coordinate."
   [grid x y]
-  (get (:tiles grid) [x y] \space))
+  (get (:tiles grid) [x y] \#))
 
 (defn find-walkable-tiles
   "Find all walkable (non-wall) tiles in the grid.

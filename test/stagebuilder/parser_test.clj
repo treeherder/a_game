@@ -6,10 +6,10 @@
 
 (def sample-map-text
   "################
-#              #
-#              #
-#              #
-#              #
+#..............#
+#..............#
+#..............#
+#..............#
 ################")
 
 (deftest parse-ascii-map-basic
@@ -19,7 +19,7 @@
       (is (= 6 (:height grid)))
       (is (map? (:tiles grid)))
       (is (= \# (parser/get-tile grid 0 0)))
-      (is (= \space (parser/get-tile grid 1 1))))))
+      (is (= \. (parser/get-tile grid 1 1))))))
 
 (deftest find-walkable-and-walls
   (testing "Find walkable tiles and walls"
@@ -28,7 +28,7 @@
           walls (parser/find-walls grid)]
       (is (> (count walkable) 0))
       (is (> (count walls) 0))
-      (is (= \space (second (first walkable))))
+      (is (= \. (second (first walkable))))
       (is (= \# (second (first walls)))))))
 
 (deftest grid-to-stage-conversion
