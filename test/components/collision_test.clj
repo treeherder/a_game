@@ -172,6 +172,116 @@
       (is (collision/tile-walkable? @stage 10 10)))))
 
 ;; =============================================================================
+;; Solid Entity Collision Constraint Tests
+;; =============================================================================
+
+(deftest solid-entities-cannot-share-tile
+  (testing "Two solid entities cannot occupy the same tile position"
+    (let [stage (env/create_stage "collision-test" #{} #{} nil nil nil)
+          wall (collision/create-wall 5 5)
+          agent-entity (-> (agent/_entity)
+                           (collision/add-collision 
+                            (collision/create-collision {:x 5 :y 5 :solid true})))]
+      ;; Add wall first
+      (env/add-entity stage wall)
+      ;; Attempt to add agent at same position
+      (env/add-agent stage agent-entity)
+      ;; The tile should not be walkable (blocked by wall)
+      (is (not (collision/tile-walkable? @stage 5 5)))
+      ;; Both entities exist but they're violating collision constraint
+      (let [entities-at-pos (collision/entities-at-position @stage 5 5)]
+        (is (>= (count entities-at-pos) 2))
+        ;; At least one solid entity blocks the position
+        (is (not (empty? (collision/solid-entities-at-position @stage 5 5))))))))
+
+(deftest agent-blocked-by-existing-agent
+  (testing "Agent cannot move to tile occupied by another solid agent"
+    (let [stage (env/create_stage "agent-collision" #{} #{} nil nil nil)
+          agent1 (-> (agent/_entity)
+                     (collision/add-collision 
+                      (collision/create-collision {:x 5 :y 5 :solid true})))
+          agent2 (-> (agent/_entity)
+                     (collision/add-collision 
+                      (collision/create-collision {:x 6 :y 5 :solid true})))]
+      (env/add-agent stage agent1)
+      (env/add-agent stage agent2)
+      ;; Position (5,5) has agent1 - not walkable
+      (is (not (collision/tile-walkable? @stage 5 5)))
+      ;; Position (6,5) has agent2 - not walkable
+      (is (not (collision/tile-walkable? @stage 6 5)))
+      ;; Empty position (7,5) should be walkable
+      (is (collision/tile-walkable? @stage 7 5)))))
+
+(deftest scenery-blocks-agent-movement
+  (testing "Scenery (walls, obstacles) blocks agent movement"
+    (let [stage (env/create_stage "scenery-blocks" #{} #{} nil nil nil)
+          obstacle (-> (agent/_entity)
+                       (assoc :type :obstacle)
+                       (collision/add-collision 
+                        (collision/create-collision {:x 10 :y 10 :width 2 :height 2 :solid true})))
+          agent-entity (-> (agent/_entity)
+                           (collision/add-collision 
+                            (collision/create-collision {:x 8 :y 10 :solid true})))]
+      (env/add-entity stage obstacle)
+      (env/add-agent stage agent-entity)
+      ;; Obstacle blocks (10,10), (11,10), (10,11), (11,11)
+      (is (not (collision/tile-walkable? @stage 10 10)))
+      (is (not (collision/tile-walkable? @stage 11 10)))
+      (is (not (collision/tile-walkable? @stage 10 11)))
+      (is (not (collision/tile-walkable? @stage 11 11)))
+      ;; Agent's position is blocked
+      (is (not (collision/tile-walkable? @stage 8 10)))
+      ;; Adjacent empty tile is walkable
+      (is (collision/tile-walkable? @stage 9 10)))))
+
+(deftest passable-entities-allow-overlap
+  (testing "Multiple passable (non-solid) entities can occupy same tile"
+    (let [stage (env/create_stage "passable-overlap" #{} #{} nil nil nil)
+          trigger1 (collision/create-floor 5 5)  ;; floor is passable
+          trigger2 (-> (agent/_entity)
+                       (assoc :type :trigger)
+                       (collision/add-collision 
+                        (collision/create-collision {:x 5 :y 5 :solid false})))]
+      (env/add-entity stage trigger1)
+      (env/add-entity stage trigger2)
+      ;; Multiple passable entities at same position
+      (let [entities-at-pos (collision/entities-at-position @stage 5 5)]
+        (is (= 2 (count entities-at-pos))))
+      ;; Tile is still walkable because all entities are passable
+      (is (collision/tile-walkable? @stage 5 5)))))
+
+(deftest mixed-solid-passable-blocks-movement
+  (testing "Tile with both solid and passable entities is not walkable"
+    (let [stage (env/create_stage "mixed-entities" #{} #{} nil nil nil)
+          floor (collision/create-floor 5 5)  ;; passable
+          wall (collision/create-wall 5 5)]   ;; solid
+      (env/add-entity stage floor)
+      (env/add-entity stage wall)
+      ;; Even though floor is passable, wall blocks movement
+      (is (not (collision/tile-walkable? @stage 5 5)))
+      ;; Both entities exist at position
+      (let [entities-at-pos (collision/entities-at-position @stage 5 5)
+            solid-count (count (collision/solid-entities-at-position @stage 5 5))]
+        (is (= 2 (count entities-at-pos)))
+        (is (= 1 solid-count))))))
+
+(deftest validate-position-before-placement
+  (testing "Check if position is valid before placing entity"
+    (let [stage (env/create_stage "validate-placement" #{} #{} nil nil nil)
+          existing-wall (collision/create-wall 5 5)]
+      (env/add-entity stage existing-wall)
+      ;; Position (5,5) should not be walkable
+      (is (not (collision/tile-walkable? @stage 5 5)))
+      ;; Position (6,6) should be walkable (empty)
+      (is (collision/tile-walkable? @stage 6 6))
+      ;; Can use tile-walkable? to validate before placement
+      (let [new-entity (collision/create-wall 6 6)]
+        (when (collision/tile-walkable? @stage 6 6)
+          (env/add-entity stage new-entity))
+        ;; Now (6,6) should not be walkable
+        (is (not (collision/tile-walkable? @stage 6 6)))))))
+
+;; =============================================================================
 ;; Wall/Scenery Type Tests
 ;; =============================================================================
 
