@@ -393,12 +393,15 @@
   (let [rooms (:rooms labyrinth)
         corridors (or (:corridors labyrinth) #{})]
     (cond
-      ;; Check if in a corridor
+      ;; Check if in a corridor first - corridors punch through room walls
       (contains? corridors [x y]) \.
       ;; Check if inside a room (floor or wall)
       (some #(point-in-room? x y %) rooms)
       (if (some #(point-on-room-wall? x y %) rooms)
-        \#  ;; Wall
+        ;; Even walls should be walkable if they're adjacent to corridors
+        (let [adjacent [[x (dec y)] [x (inc y)] [(dec x) y] [(inc x) y]]
+              has-corridor-neighbor (some #(contains? corridors %) adjacent)]
+          (if has-corridor-neighbor \. \#))  ;; Door if adjacent to corridor
         \.) ;; Floor
       ;; Otherwise corridor/wall
       :else \#)))

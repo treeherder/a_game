@@ -1,6 +1,6 @@
 # Map Generation Guide
 
-The `stagebuilder` module provides procedural generation of large, explorable labyrinths for roguelike gameplay.
+The `stagebuilder` module provides procedural generation of large, explorable labyrinths for mazelike gameplay.
 
 ## Quick Start
 

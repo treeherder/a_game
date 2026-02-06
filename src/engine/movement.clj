@@ -14,14 +14,23 @@
 
 (def directions
   "Movement directions as [dx dy] vectors."
-  {:up    [0 -1]
-   :down  [0 1]
-   :left  [-1 0]
-   :right [1 0]
-   :n     [0 -1]
-   :s     [0 1]
-   :w     [-1 0]
-   :e     [1 0]})
+  {:up        [0 -1]
+   :down      [0 1]
+   :left      [-1 0]
+   :right     [1 0]
+   :n         [0 -1]
+   :s         [0 1]
+   :w         [-1 0]
+   :e         [1 0]
+   ;; Diagonal directions
+   :northwest [-1 -1]
+   :northeast [1 -1]
+   :southwest [-1 1]
+   :southeast [1 1]
+   :nw        [-1 -1]
+   :ne        [1 -1]
+   :sw        [-1 1]
+   :se        [1 1]})
 
 (def cardinal-directions
   "Only the four cardinal directions for neighbor finding."

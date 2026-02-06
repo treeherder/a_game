@@ -1,6 +1,6 @@
 # a_game Wiki
 
-Welcome to the project wiki for **a_game**, an extensible entity-component system for multiplayer hack-and-slash roguelike arena games.
+Welcome to the project wiki for **a_game**, an extensible entity-component system for multiplayer hack-and-slash mazelike arena games.
 
 ## Documentation
 

@@ -7,6 +7,52 @@ Key concepts
 - `entity`: lightweight map with `:id` and `:components`.
 - `components`: small maps describing properties (HP, hardness, etc.).
 
+## Playing the Game
+
+### GUI Version (Recommended)
+
+Build the standalone JAR and run with GUI:
+
+```bash
+# Build once
+lein uberjar
+
+# Run the GUI version
+./run-gui.sh
+
+# Or with custom map size (width height)
+./run-gui.sh 80 40
+```
+
+**Controls:**
+- **Player 1:** WASD keys
+- **Player 2:** Arrow keys  
+- **Diagonal:** Numpad 7,9,1,3 or hjkl
+- **Wait:** Space
+- **Quit:** Q
+
+The game opens in a window with real-time movement. No need to press Enter - just hold a key to move!
+
+### Console Version
+
+For terminal-based play:
+
+```bash
+lein with-profile console run
+# Or directly:
+lein run -m engine.game
+```
+
+### Portable Binary
+
+The standalone JAR can be copied to any machine with Java 8+:
+
+```bash
+# From target/uberjar/a_game-standalone.jar
+java --add-exports java.desktop/sun.java2d=ALL-UNNAMED \
+     -jar a_game-standalone.jar
+```
+
 ## Map Generation
 
 The project includes procedural labyrinth generation for creating large, explorable dungeons:
@@ -175,7 +221,7 @@ Notes
 # We maintain a small project wiki in the `wiki/` folder. See `wiki/Home.md` for navigation.
 # a_game
 
-a_game is an extensible, scaling component-entity system for a multiplayer hack-and-slash roguelike arena game.
+a_game is an extensible, scaling component-entity system for a multiplayer hack-and-slash mazelike arena game.
 
 
 ##### Installation

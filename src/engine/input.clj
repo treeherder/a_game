@@ -13,12 +13,12 @@
 
 (def key-bindings
   "Default key bindings for movement and actions."
-  {;; Arrow keys (represented as keywords)
+  {;; Arrow keys (represented as keywords) - PLAYER 2
    :up    :move-up
    :down  :move-down
    :left  :move-left
    :right :move-right
-   ;; WASD
+   ;; WASD - PLAYER 1
    \w :move-up
    \W :move-up
    \s :move-down
@@ -27,7 +27,7 @@
    \A :move-left
    \d :move-right
    \D :move-right
-   ;; Vi-style
+   ;; Vi-style (alternative for PLAYER 1)
    \h :move-left
    \j :move-down
    \k :move-up
@@ -42,18 +42,40 @@
    \p :pause
    \P :pause
    \space :wait
-   ;; Number pad (as characters)
+   ;; Number pad (as characters) - Alternative for PLAYER 2
    \8 :move-up
    \2 :move-down
    \4 :move-left
-   \6 :move-right})
+   \6 :move-right
+   \7 :move-up-left
+   \9 :move-up-right
+   \1 :move-down-left
+   \3 :move-down-right})
+
+(def player1-keys
+  "Player 1 specific key bindings (WASD)."
+  {\w :move-up
+   \a :move-left
+   \s :move-down
+   \d :move-right})
+
+(def player2-keys
+  "Player 2 specific key bindings (Arrow keys as keywords)."
+  {:up    :move-up
+   :down  :move-down
+   :left  :move-left
+   :right :move-right})
 
 (def action->direction
   "Map actions to movement directions."
-  {:move-up    :up
-   :move-down  :down
-   :move-left  :left
-   :move-right :right})
+  {:move-up         :up
+   :move-down       :down
+   :move-left       :left
+   :move-right      :right
+   :move-up-left    :northwest
+   :move-up-right   :northeast
+   :move-down-left  :southwest
+   :move-down-right :southeast})
 
 ;; =============================================================================
 ;; Input Processing
